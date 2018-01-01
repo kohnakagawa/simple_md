@@ -1,0 +1,3 @@
+#+STARTUP: indent
+* simple_md_rs
+A simple implementation of molecular dynamics simulation written in Rust.
