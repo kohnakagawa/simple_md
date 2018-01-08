@@ -1,13 +1,16 @@
 use variables::Variables;
 use parameter::Parameter;
+use fcalculator::ForceCalculator;
+use meshlist::MeshList;
 use observer::Observer;
-use utils::f64vec3::F64vec3;
 use configmaker::ConfigMaker;
 
 pub struct MDSystem {
     vars: Variables,
     param: Parameter,
     obs: Observer,
+    mesh: MeshList,
+    margin_length: f64,
 }
 
 impl MDSystem {
@@ -16,36 +19,33 @@ impl MDSystem {
             vars: Variables::new(),
             param: Parameter::new(),
             obs: Observer::new(),
+            mesh: MeshList::new(),
+            margin_length: 0.0,
+        }
+    }
+
+    fn check_pairlist(&mut self) {
+        let vars = &mut self.vars;
+        let param = &self.param;
+
+        let mut vmax2 = 0.0;
+        for atom in &vars.atoms {
+            let v2 = atom.v.norm2();
+            if vmax2 < v2 {vmax2 = v2}
+        }
+        let vmax = vmax2.sqrt();
+
+        self.margin_length -= vmax * param.dt * 2.0;
+        if self.margin_length < 0.0 {
+            self.margin_length = param.margin;
+            self.mesh.make_sorted_list(vars, &self.param);
         }
     }
 
     fn calculate_force(&mut self) {
-        let vars  = &mut self.vars;
-        let param = &self.param;
-
-        let n_atoms = vars.number_of_atoms();
-        let cl2 = param.cl * param.cl;
-        let dt  = param.dt;
-        for i in 0..n_atoms-1 {
-            for j in i+1..n_atoms {
-                let mut dr = F64vec3::new(
-                    vars.atoms[j].r.x - vars.atoms[i].r.x,
-                    vars.atoms[j].r.y - vars.atoms[i].r.y,
-                    vars.atoms[j].r.z - vars.atoms[i].r.z,
-                );
-                param.adjust_pbc(&mut dr);
-                let r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
-                if r2 > cl2 {continue;}
-                let r6 = r2 * r2 * r2;
-                let df = (24.0 * r6 - 48.0) / (r6 * r6 * r2) * dt;
-                vars.atoms[i].v.x += df * dr.x;
-                vars.atoms[i].v.y += df * dr.y;
-                vars.atoms[i].v.z += df * dr.z;
-                vars.atoms[j].v.x -= df * dr.x;
-                vars.atoms[j].v.y -= df * dr.y;
-                vars.atoms[j].v.z -= df * dr.z;
-            }
-        }
+        ForceCalculator::calculate_force(&mut self.vars,
+                                         &self.mesh,
+                                         &self.param);
     }
 
     fn update_position(&mut self) {
@@ -75,16 +75,22 @@ impl MDSystem {
 
     fn calculate(&mut self) {
         self.update_position();
+        self.check_pairlist();
         self.calculate_force();
         self.update_position();
         self.periodic();
         self.vars.time += self.param.dt;
     }
 
-    pub fn run(&mut self) {
+    fn setup(&mut self) {
         ConfigMaker::make_fcc(&mut self.vars,
                               &self.param);
         self.vars.set_initial_velocity(1.0);
+        self.mesh.setup(&self.param, &self.vars);
+    }
+
+    pub fn run(&mut self) {
+        self.setup();
         let steps = 10000;
         let observe = 100;
         for i in 0..steps {
@@ -101,6 +107,3 @@ impl MDSystem {
         }
     }
 }
-
-
-

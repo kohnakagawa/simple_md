@@ -1,11 +1,11 @@
 use utils::f64vec3::F64vec3;
 
-#[derive(Debug)]
 pub struct Parameter {
     pub box_len: F64vec3,
     pub dt: f64,
     pub cl: f64,
     pub c0: f64,
+    pub margin: f64,
 }
 
 impl Parameter {
@@ -20,6 +20,7 @@ impl Parameter {
             dt: 0.01,
             cl: cl,
             c0: c0,
+            margin: 0.5,
         }
     }
 
