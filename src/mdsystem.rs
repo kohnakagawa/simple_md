@@ -4,6 +4,7 @@ use fcalculator::ForceCalculator;
 use meshlist::MeshList;
 use observer::Observer;
 use configmaker::ConfigMaker;
+use configmaker::FccConfigMaker;
 
 pub struct MDSystem {
     vars: Variables,
@@ -83,8 +84,8 @@ impl MDSystem {
     }
 
     fn setup(&mut self) {
-        ConfigMaker::make_fcc(&mut self.vars,
-                              &self.param);
+        let cmaker = FccConfigMaker::new(0.5);
+        cmaker.make_conf(&mut self.vars, &self.param);
         self.vars.set_initial_velocity(1.0);
         self.mesh.setup(&self.param, &self.vars);
     }

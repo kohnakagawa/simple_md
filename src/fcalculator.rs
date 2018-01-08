@@ -112,6 +112,5 @@ impl ForceCalculator {
             vars.atoms[i].v.y += pi.y;
             vars.atoms[i].v.z += pi.z;
         }
-
     }
 }

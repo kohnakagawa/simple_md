@@ -194,8 +194,6 @@ impl MeshList {
                 if r2 < sl2 {self.register_pair(i_id, j_id)}
             }
         }
-
-        println!("{} pairs are registered", self.pairs.len());
     }
 
     fn mesh_id(&self, ix: i32, iy: i32, iz: i32) -> usize {
@@ -277,10 +275,56 @@ impl MeshList {
         }
     }
 
+    #[allow(dead_code)]
+    pub fn make_sorted_list_brute_force(&mut self, vars: &Variables, param: &Parameter) {
+        self.search_brute_force(vars, param);
+        self.make_sorted_list_from_pairs(vars);
+    }
+
     pub fn make_sorted_list(&mut self, vars: &Variables, param: &Parameter) {
         self.register_mesh_pos(vars);
         self.make_ptcl_id_of_nmesh();
         self.search_mesh(vars, param);
         self.make_sorted_list_from_pairs(vars);
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use configmaker::ConfigMaker;
+    use configmaker::RandomConfigMaker;
+
+    fn sort_by_key_ptcl(mesh: &mut MeshList,
+                        natoms: usize) {
+        for i in 0..natoms {
+            let beg = mesh.pointer[i];
+            let end = mesh.pointer[i+1];
+            mesh.sorted_list[beg..end].sort();
+        }
+    }
+
+    #[test]
+    fn it_works() {
+        let cmaker   = RandomConfigMaker::new(0.5);
+        let mut vars = Variables::new();
+        let param    = Parameter::new();
+        cmaker.make_conf(&mut vars, &param);
+
+        let mut mesh_naive = MeshList::new();
+        let mut mesh       = MeshList::new();
+
+        mesh_naive.setup(&param, &vars);
+        mesh.setup(&param, &vars);
+
+        mesh_naive.make_sorted_list_brute_force(&vars, &param);
+        mesh.make_sorted_list(&vars, &param);
+
+        sort_by_key_ptcl(&mut mesh, vars.number_of_atoms());
+        for (i, j) in mesh.sorted_list.iter().zip(mesh_naive.sorted_list.iter()) {
+            assert_eq!(i, j);
+        }
+    }
+
+
 }
