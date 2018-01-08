@@ -1,6 +1,6 @@
 #+STARTUP: indent
 * simple_md
-A simple implementation of molecular dynamics simulation written in Rust.
+A simple Rust implementation of molecular dynamics simulation.
 ** History
 - <2018-01-01 月>
   - 実装開始。
