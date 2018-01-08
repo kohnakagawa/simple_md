@@ -3,6 +3,8 @@
 A simple implementation of molecular dynamics simulation written in Rust.
 ** History
 - <2018-01-01 月>
-  - 実装開始
+  - 実装開始。
 - <2018-01-03 水>
   - O(N^2)の実装を作り終えた。
+- <2018-01-08 月>
+  - O(N)の実装。
