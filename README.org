@@ -8,3 +8,6 @@ A simple Rust implementation of molecular dynamics simulation.
   - O(N^2)の実装を作り終えた。
 - <2018-01-08 月>
   - O(N)の実装。
+** TODO
+- f64vec3に関係する演算を演算子オーバーロード使って書き直す
+- parameterクラスをファイルから読み込むように変更する
