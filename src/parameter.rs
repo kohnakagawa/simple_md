@@ -38,14 +38,15 @@ impl Parameter {
         for line in lines {
             let line = line.unwrap();
             let mut words: Vec<&str> = line.split_whitespace().collect();
-
             if words[0] == "cl" {self.cl = words[1].parse().unwrap();}
             if words[0] == "dt" {self.dt = words[1].parse().unwrap();}
             if words[0] == "margin" {self.margin = words[1].parse().unwrap();}
             if words[0] == "steps" {self.steps  = words[1].parse().unwrap();}
             if words[0] == "observe" {self.observe = words[1].parse().unwrap();}
+            if words[0] == "box_len.x" {self.box_len.x = words[1].parse().unwrap();}
+            if words[0] == "box_len.y" {self.box_len.y = words[1].parse().unwrap();}
+            if words[0] == "box_len.z" {self.box_len.z = words[1].parse().unwrap();}
         }
-        println!("{:?}", self);
     }
 
     pub fn adjust_pbc(&self, dr: &mut F64vec3) {
