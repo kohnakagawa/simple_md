@@ -86,7 +86,8 @@ impl ForceCalculator {
         let n_atoms = vars.number_of_atoms();
         let cl2 = param.cl * param.cl;
         let dt  = param.dt;
-        for i in 0..n_atoms {
+
+        (0..n_atoms).into_iter().for_each(|i| {
             let ri = vars.atoms[i].r;
             let mut pi = F64vec3::zero();
             for k in pointer[i]..pointer[i+1] {
@@ -111,6 +112,6 @@ impl ForceCalculator {
             vars.atoms[i].v.x += pi.x;
             vars.atoms[i].v.y += pi.y;
             vars.atoms[i].v.z += pi.z;
-        }
+        });
     }
 }

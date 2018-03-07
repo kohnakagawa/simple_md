@@ -1,11 +1,17 @@
 use utils::f64vec3::F64vec3;
+use std::path::Path;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
+#[derive(Debug)]
 pub struct Parameter {
     pub box_len: F64vec3,
     pub dt: f64,
     pub cl: f64,
     pub c0: f64,
     pub margin: f64,
+    pub steps: u32,
+    pub observe: u32,
 }
 
 impl Parameter {
@@ -21,7 +27,25 @@ impl Parameter {
             cl: cl,
             c0: c0,
             margin: 0.5,
+            steps: 100000,
+            observe: 1000,
         }
+    }
+
+    pub fn read_from_file(&mut self, fname: &Path) {
+        let reader = BufReader::new(File::open(fname).unwrap());
+        let lines = reader.lines();
+        for line in lines {
+            let line = line.unwrap();
+            let mut words: Vec<&str> = line.split_whitespace().collect();
+
+            if words[0] == "cl" {self.cl = words[1].parse().unwrap();}
+            if words[0] == "dt" {self.dt = words[1].parse().unwrap();}
+            if words[0] == "margin" {self.margin = words[1].parse().unwrap();}
+            if words[0] == "steps" {self.steps  = words[1].parse().unwrap();}
+            if words[0] == "observe" {self.observe = words[1].parse().unwrap();}
+        }
+        println!("{:?}", self);
     }
 
     pub fn adjust_pbc(&self, dr: &mut F64vec3) {

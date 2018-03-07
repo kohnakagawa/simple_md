@@ -5,6 +5,7 @@ use meshlist::MeshList;
 use observer::Observer;
 use configmaker::ConfigMaker;
 use configmaker::FccConfigMaker;
+use std::path::Path;
 
 pub struct MDSystem {
     vars: Variables,
@@ -15,14 +16,17 @@ pub struct MDSystem {
 }
 
 impl MDSystem {
-    pub fn new() -> MDSystem {
-        MDSystem {
+    pub fn new(input_dir: &String) -> MDSystem {
+        let mut mdsystem = MDSystem {
             vars: Variables::new(),
             param: Parameter::new(),
             obs: Observer::new(),
             mesh: MeshList::new(),
             margin_length: 0.0,
-        }
+        };
+        let fpath = Path::new(input_dir).join("input.dat");
+        mdsystem.param.read_from_file(&fpath);
+        mdsystem
     }
 
     fn check_pairlist(&mut self) {
@@ -92,13 +96,14 @@ impl MDSystem {
 
     pub fn run(&mut self) {
         self.setup();
-        let steps = 10000;
-        let observe = 100;
+        let steps = self.param.steps;
+        let observe = self.param.observe;
         for i in 0..steps {
             if (i % observe) == 0 {
                 self.obs.traject(&self.vars);
                 let k = self.obs.kinetic_energy(&self.vars);
                 let u = self.obs.potential_energy(&self.vars,
+                                                  &self.mesh.pairs,
                                                   &self.param);
                 println!("t = {}, k = {}, u = {}, tot = {}",
                          self.vars.time, k, u, k + u);

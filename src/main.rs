@@ -7,9 +7,15 @@ mod meshlist;
 mod observer;
 mod mdsystem;
 use mdsystem::MDSystem;
+use std::env;
 
 fn main() {
-    let mut mdsystem = MDSystem::new();
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        println!("Usage:");
+        println!("$ {} input_dir", args[0]);
+        panic!("directory path should be specified.");
+    }
+    let mut mdsystem = MDSystem::new(&args[1]);
     mdsystem.run();
 }
-

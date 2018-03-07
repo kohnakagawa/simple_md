@@ -10,11 +10,18 @@ impl F64vec3 {
         F64vec3 {x: x, y: y, z: z}
     }
 
+    #[inline]
     pub fn zero() -> F64vec3 {
         F64vec3 {x: 0.0, y: 0.0, z: 0.0}
     }
 
+    #[inline]
     pub fn norm2(&self) -> f64 {
         self.x*self.x + self.y*self.y + self.z*self.z
+    }
+
+    #[inline]
+    pub fn norm(&self) -> f64 {
+        self.norm2().sqrt()
     }
 }
